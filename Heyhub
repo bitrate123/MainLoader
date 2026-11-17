@@ -1,1 +1,40 @@
+local GameScripts = {
+    [120219252362013] = "THROW%20A%20FOOD.lua", 
+}
 
+local baseURL = "https://raw.githubusercontent.com/bitrate123/MainLoader/main/"
+
+local currentID = game.PlaceId
+local scriptToLoad = GameScripts[currentID]
+
+if not scriptToLoad then
+    scriptToLoad = GameScripts[game.GameId]
+    if not scriptToLoad then
+        warn("[HeyHub] No script configured for this game (ID: " .. tostring(currentID) .. ")")
+        return
+    end
+end
+
+print("[HeyHub] Loading: " .. scriptToLoad)
+
+local success, err = pcall(function()
+    local finalURL = baseURL .. scriptToLoad .. "?t=" .. tostring(os.time())
+    local rawCode = game:HttpGet(finalURL)
+    
+    if not rawCode or rawCode == "" then
+        error("The file " .. scriptToLoad .. " is empty or missing on GitHub!")
+    end
+    
+    local mainScript = loadstring(rawCode)
+    
+    if mainScript then
+        mainScript()
+        print("[HeyHub] Loaded successfully!")
+    else
+        error("Syntax error in " .. scriptToLoad)
+    end
+end)
+
+if not success then
+    warn("[HeyHub] Loader failed:", err)
+end
